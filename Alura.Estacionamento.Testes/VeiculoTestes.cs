@@ -2,67 +2,124 @@ using Alura.Estacionamento.Alura.Estacionamento.Modelos;
 using Alura.Estacionamento.Modelos;
 using System;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Alura.Estacionamento.Testes
 {
-    public class VeiculoTestes
+    public class VeiculoTestes : IDisposable
     {
-        [Fact(DisplayName = "Teste Acelerar Veiculo")]
-        [Trait("Funcionalidade", "Acelerar")]
-        public void TestaVeiculoAcelerar()
-        {
-            //Arrange
-            var veiculo = new Veiculo();
-            //Act
-            veiculo.Acelerar(10);
-            //Assert
-            Assert.Equal(100, veiculo.VelocidadeAtual);
-        }
+        public ITestOutputHelper _saidaConsoleTeste;
+        private readonly Veiculo _veiculo;
 
-        [Fact(DisplayName = "Teste Frear Veiculo")]
-        [Trait("Funcionalidade", "Frear")]
-        public void TestaVeiculoFreiar()
+        public VeiculoTestes(ITestOutputHelper saidaConsoleTeste)
         {
-            //Arrange
-            var veiculo = new Veiculo();
-            //Act
-            veiculo.Frear(15);
-            //Assert
-            Assert.Equal(-225, veiculo.VelocidadeAtual);
+            _saidaConsoleTeste = saidaConsoleTeste;
+            _saidaConsoleTeste.WriteLine("Construtor invocado.");
+            _veiculo = new Veiculo();
         }
 
         [Fact]
-        public void TestaTipoVeiculo()
+        public void TestaVeiculoAcelerarComParametro10()
         {
             //Arrange
-            var veiculo = new Veiculo();
+            //var veiculo = new Veiculo();
+            //Act
+            _veiculo.Acelerar(10);
+            //Assert
+            Assert.Equal(100, _veiculo.VelocidadeAtual);
+        }
+
+        [Fact]
+        public void TestaVeiculoFreiarComParametro15()
+        {
+            //Arrange
+            //var veiculo = new Veiculo();
+            //Act
+            _veiculo.Frear(15);
+            //Assert
+            Assert.Equal(-225, _veiculo.VelocidadeAtual);
+        }
+
+        [Fact]
+        public void TestaTipoVeiculoAutomovel()
+        {
+            //Arrange
+            //var veiculo = new Veiculo();
             //Act
             //Assert
-            Assert.Equal(TipoVeiculo.Automovel, veiculo.Tipo);
+            Assert.Equal(TipoVeiculo.Automovel, _veiculo.Tipo);
         }
 
         [Fact(DisplayName = "Validar Nome do Proprietario", Skip = "Teste ainda não implementado.")]
-        public void ValidaNomeProprietario()
+        public void ValidaNomeProprietarioDoVeiculo()
         {
 
         }
 
         [Fact]
-        public void DadosVeiculos()
+        public void FichaDeInformacaoDoVeiculos()
         {
             //Arrange
-            var veiculo = new Veiculo();
-            veiculo.Proprietario = "André Silva";
-            veiculo.Tipo = TipoVeiculo.Automovel;
-            veiculo.Cor = "Verde";
-            veiculo.Modelo = "Fusca";
-            veiculo.Placa = "ASD-9999";
+            //var veiculo = new Veiculo();
+            _veiculo.Proprietario = "André Silva";
+            _veiculo.Tipo = TipoVeiculo.Automovel;
+            _veiculo.Cor = "Verde";
+            _veiculo.Modelo = "Fusca";
+            _veiculo.Placa = "ASD-9999";
 
             //Act
-            string dados = veiculo.ToString();
+            string dados = _veiculo.ToString();
 
             //Assert
             Assert.Contains("Ficha do Veículo", dados);
+        }
+
+        [Fact]
+        public void TestaNomeProprietarioVeiculoComMenosDe3Caracteres()
+        {
+            //Arrange
+            string nomeProprietario = "Ae";
+
+            //Assert
+            Assert.Throws<FormatException>(
+                    //Act
+                    () => new Veiculo(nomeProprietario)
+                );
+        }
+
+        [Fact]
+        public void TestaMensagemDeExcecaoDoQuartoCaractereDaPlaca()
+        {
+            //Arrange
+            string placa = "ASDF8888";
+
+            //Assert
+            var mensagem = Assert.Throws<FormatException>(
+                                    //Act
+                                    () => new Veiculo().Placa = placa
+                                );
+
+            Assert.Equal("O 4° caractere deve ser um hífen", mensagem.Message);
+        }
+
+        [Fact]
+        public void TestaMensagemDeExcecaoSeUltimosCaracteresDaPlacaSaoNumeros()
+        {
+            //Arrange
+            string placa = "ASD-S88S";
+
+            //Assert
+            var mensagem = Assert.Throws<FormatException>(
+                                    //Act
+                                    () => new Veiculo().Placa = placa
+                                );
+
+            Assert.Equal("Do 5º ao 8º caractere deve-se ter um número!", mensagem.Message);
+        }
+
+        public void Dispose()
+        {
+            _saidaConsoleTeste.WriteLine("Dispose invocado.");
         }
     }
 }

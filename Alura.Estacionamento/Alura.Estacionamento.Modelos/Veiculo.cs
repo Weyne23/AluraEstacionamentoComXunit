@@ -67,7 +67,17 @@ namespace Alura.Estacionamento.Modelos
         public string Modelo { get; set; }        
         public string Proprietario
         {
-            get; set;
+            get
+            {
+                return _proprietario;
+            }
+            set
+            {
+                if (value.Length < 3)
+                    throw new FormatException("Nome proprietario tem que ser maior que 2 caracteres");
+
+                _proprietario = value;
+            }
         }
         public DateTime HoraEntrada { get; set; }
         public DateTime HoraSaida { get; set; }   
