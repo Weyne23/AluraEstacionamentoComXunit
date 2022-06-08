@@ -11,6 +11,7 @@ namespace Alura.Estacionamento.Testes
         public ITestOutputHelper _saidaConsoleTeste;
         private readonly Veiculo _veiculo;
         private readonly Patio _patio;
+        private readonly Operador _operador;
 
         public PatioTestes(ITestOutputHelper saidaConsoleTeste)
         {
@@ -18,10 +19,13 @@ namespace Alura.Estacionamento.Testes
             _saidaConsoleTeste.WriteLine("Construtor invocado.");
             _veiculo = new Veiculo();
             _patio = new Patio();
+            _operador = new Operador();
+            _operador.Nome = "Pedro Fagundes";
+            _patio.OperadorPatio = _operador;
         }
 
         [Fact]
-        public void ValidaFaturamentoDoEstacionamentoDoVeiclo()
+        public void ValidaFaturamentoDoEstacionamentoDoVeiculo()
         {
             //Arrange
             _veiculo.Proprietario = "André Silva";
@@ -71,7 +75,7 @@ namespace Alura.Estacionamento.Testes
 
         [Theory]
         [InlineData("André Silva", "ASD-1498", "Preto", "Gol")]
-        public void LocalizaVeiculoPatioComBaseNaPlaca(string proprietario,
+        public void LocalizaVeiculoPatioComBaseNoIdTicket(string proprietario,
                                                        string placa,
                                                        string cor,
                                                        string modelo)
@@ -86,10 +90,14 @@ namespace Alura.Estacionamento.Testes
             _patio.RegistrarEntradaVeiculo(_veiculo);
 
             //Act
-            var consultado = _patio.PesquisaVeiculo(_veiculo.Placa);
+            var consultado = _patio.PesquisaVeiculo(_veiculo.IdTicket);
 
             //Assert
-            Assert.Equal(consultado.Placa, _veiculo.Placa);
+            Assert.Contains("### Ticket Estacionamento Alura ###" +
+                            $">>> Identificador: {_veiculo.IdTicket}" +
+                            $">>> Data/Hora de Entrada: {DateTime.Now}" +
+                            $">>> Placa Veiculo: {_veiculo.Placa}" +
+                            $">>> Operador Patio: {_patio.OperadorPatio.Nome}", _veiculo.Ticket);
         }
 
         [Fact]
